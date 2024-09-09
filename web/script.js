@@ -1,19 +1,41 @@
 async function pasteImage() {
     try {
         const items = await navigator.clipboard.read();
+        let imageFound = false;
+
         for (const item of items) {
             if (!item.types.includes('image/png')) continue;
+            imageFound = true;
             const blob = await item.getType('image/png');
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onload = async function() {
                 const base64Image = reader.result.split(',')[1];
-                extractTextFromImage(base64Image);
+
+                // Display the pasted image
+                showPastedImage(reader.result);
+
+                // Extract text from the image
+                await extractTextFromImage(base64Image);
             };
         }
+
+        if (!imageFound) {
+            displayError('No image found in the clipboard.');
+        }
     } catch (err) {
+        displayError('Failed to access clipboard: ' + err.message);
         console.error('Failed to paste image:', err);
     }
+}
+
+function showPastedImage(imageDataUrl) {
+    const imageContainer = document.getElementById('imageContainer');
+    imageContainer.innerHTML = ''; // Clear previous image
+
+    const imgElement = document.createElement('img');
+    imgElement.src = imageDataUrl;
+    imageContainer.appendChild(imgElement);
 }
 
 async function extractTextFromImage(base64Image) {
@@ -34,10 +56,10 @@ async function extractTextFromImage(base64Image) {
             const extractedText = result.ParsedResults[0].ParsedText;
             parseAndCalculate(extractedText);
         } else {
-            throw new Error('Failed to extract text from image');
+            throw new Error('Failed to extract text from image.');
         }
     } catch (err) {
-        document.getElementById('output').textContent = `Error: ${err.message}`;
+        displayError('OCR failed: ' + err.message);
         console.error('OCR failed:', err);
     }
 }
@@ -52,7 +74,7 @@ function parseAndCalculate(text) {
     });
 
     if (numericValues.length !== 5) {
-        document.getElementById('output').textContent = "Error: Expected exactly 5 crop values";
+        displayError('Expected exactly 5 crop values, but found ' + numericValues.length + '.', true, false);
         return;
     }
 
@@ -80,4 +102,16 @@ function calculateCropValue(crops) {
 
     document.getElementById('output').innerHTML = outputHTML;
     document.getElementById('result').textContent = `Total value: ${totalValue}`;
+}
+
+function displayError(message, clearResult = true, clearImage = true) {
+    document.getElementById('output').innerHTML = `<div style="color: red;">${message}</div>`;
+    
+    if (clearResult) {
+        document.getElementById('result').textContent = ''; // Clear any previous result
+    }
+
+    if (clearImage) {
+        document.getElementById('imageContainer').innerHTML = ''; // Clear any previous image
+    }
 }
