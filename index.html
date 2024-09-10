@@ -13,7 +13,20 @@
         Paste an image from your clipboard to extract text and calculate crop
         values.
       </p>
-      <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
+      <div class="input-group">
+        <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
+        <input
+          type="text"
+          id="apiKeyInput"
+          placeholder="(Optional) Your OCR.SPACE API"
+        />
+        <a
+          href="https://ocr.space/ocrapi/freekey"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Get API Key</a
+        >
+      </div>
       <div id="imageContainer"></div>
       <div id="output" class="output-container"></div>
       <div id="result" class="result"></div>

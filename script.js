@@ -1,3 +1,24 @@
+const defaultApiKey = "091bfd2c2e88957";
+const apiKeyInput = document.getElementById("apiKeyInput");
+
+// Load saved API key on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const savedApiKey = localStorage.getItem("ocrApiKey");
+  if (savedApiKey) {
+    apiKeyInput.value = savedApiKey;
+  }
+});
+
+// Save API key when input changes
+apiKeyInput.addEventListener("change", () => {
+  const apiKey = apiKeyInput.value.trim();
+  if (apiKey) {
+    localStorage.setItem("ocrApiKey", apiKey);
+  } else {
+    localStorage.removeItem("ocrApiKey");
+  }
+});
+
 async function pasteImage() {
   try {
     const items = await navigator.clipboard.read();
@@ -41,7 +62,7 @@ function showPastedImage(imageDataUrl) {
 }
 
 async function extractTextFromImage(base64Image) {
-  const apiKey = "091bfd2c2e88957";
+  const apiKey = apiKeyInput.value.trim() || defaultApiKey;
   const formData = new FormData();
   formData.append("apikey", apiKey);
   formData.append("base64Image", "data:image/png;base64," + base64Image);
