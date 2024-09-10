@@ -1,36 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crop Value Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        #output {
-            margin-top: 20px;
-        }
-        #result {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Crop Value Calculator</h1>
-    <p>Paste an image from your clipboard to extract text and calculate crop values.</p>
-    <button onclick="pasteImage()">Paste Image</button>
-    <div id="output"></div>
-    <div id="result"></div>
-    <div id="imageContainer"></div>
-
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Crop Value Calculator</h1>
+      <p>
+        Paste an image from your clipboard to extract text and calculate crop
+        values.
+      </p>
+      <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
+      <div id="imageContainer"></div>
+      <div id="output" class="output-container"></div>
+      <div id="result" class="result"></div>
+    </div>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

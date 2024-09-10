@@ -11,11 +11,7 @@ async function pasteImage() {
       reader.readAsDataURL(blob);
       reader.onload = async function () {
         const base64Image = reader.result.split(",")[1];
-
-        // Display the pasted image
         showPastedImage(reader.result);
-
-        // Extract text from the image
         await extractTextFromImage(base64Image);
       };
     }
@@ -31,19 +27,25 @@ async function pasteImage() {
 
 function showPastedImage(imageDataUrl) {
   const imageContainer = document.getElementById("imageContainer");
-  imageContainer.innerHTML = ""; // Clear previous image
+  imageContainer.innerHTML = "";
 
   const imgElement = document.createElement("img");
   imgElement.src = imageDataUrl;
+  imgElement.style.opacity = "0";
   imageContainer.appendChild(imgElement);
+
+  setTimeout(() => {
+    imgElement.style.transition = "opacity 0.5s ease-in-out";
+    imgElement.style.opacity = "1";
+  }, 100);
 }
 
 async function extractTextFromImage(base64Image) {
-  const apiKey = "091bfd2c2e88957"; // Your API key here
+  const apiKey = "091bfd2c2e88957";
   const formData = new FormData();
   formData.append("apikey", apiKey);
   formData.append("base64Image", "data:image/png;base64," + base64Image);
-  formData.append("OCREngine", "2"); // Better accuracy for text in image
+  formData.append("OCREngine", "2");
 
   try {
     const response = await fetch("https://api.ocr.space/parse/image", {
@@ -100,24 +102,46 @@ function calculateCropValue(crops) {
   crops.forEach((cropQuantity, index) => {
     const { name, ratio } = cropValueRatios[index];
     const cropValue = cropQuantity * ratio;
-    outputHTML += `<div>${name}: ${cropQuantity} x ${ratio} = ${cropValue.toLocaleString()}</div>`;
+    outputHTML += `
+            <div class="crop-item">
+                <span class="crop-name">${name}:</span>
+                <span class="crop-value">${cropQuantity} x ${ratio} = ${cropValue.toLocaleString()}</span>
+            </div>
+        `;
     totalValue += cropValue;
   });
 
-  document.getElementById("output").innerHTML = outputHTML;
-  document.getElementById("result").textContent =
-    `Total value: ${totalValue.toLocaleString()}`;
+  const output = document.getElementById("output");
+  output.innerHTML = outputHTML;
+  output.style.opacity = "0";
+
+  const result = document.getElementById("result");
+  result.textContent = `Total value: ${totalValue.toLocaleString()}`;
+  result.style.opacity = "0";
+
+  setTimeout(() => {
+    output.style.transition = "opacity 0.5s ease-in-out";
+    result.style.transition = "opacity 0.5s ease-in-out";
+    output.style.opacity = "1";
+    result.style.opacity = "1";
+  }, 100);
 }
 
 function displayError(message, clearResult = true, clearImage = true) {
-  document.getElementById("output").innerHTML =
-    `<div style="color: red;">${message}</div>`;
+  const output = document.getElementById("output");
+  output.innerHTML = `<div class="error-message">${message}</div>`;
+  output.style.opacity = "0";
+
+  setTimeout(() => {
+    output.style.transition = "opacity 0.5s ease-in-out";
+    output.style.opacity = "1";
+  }, 100);
 
   if (clearResult) {
-    document.getElementById("result").textContent = ""; // Clear any previous result
+    document.getElementById("result").textContent = "";
   }
 
   if (clearImage) {
-    document.getElementById("imageContainer").innerHTML = ""; // Clear any previous image
+    document.getElementById("imageContainer").innerHTML = "";
   }
 }
