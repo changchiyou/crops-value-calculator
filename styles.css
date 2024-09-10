@@ -1,142 +1,192 @@
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f4f8;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 .container {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
 }
 
 h1 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
 }
 
 p {
-  color: #34495e;
-  margin-bottom: 1.5rem;
+    color: #34495e;
+    margin-bottom: 1.5rem;
 }
 
 .input-group {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 #pasteButton {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-right: 1rem;
-  flex-shrink: 0;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 1rem;
+    flex-shrink: 0;
 }
 
 #pasteButton:hover {
-  background-color: #2980b9;
+    background-color: #2980b9;
 }
 
 #apiKeyInput {
-  flex-grow: 1;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #bdc3c7;
-  border-radius: 4px;
-  margin-right: 1rem;
-  min-width: 200px;
+    flex-grow: 1;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    margin-right: 1rem;
+    min-width: 200px;
 }
 
 .input-group a {
-  color: #3498db;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-  white-space: nowrap;
+    color: #3498db;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    white-space: nowrap;
 }
 
 .input-group a:hover {
-  color: #2980b9;
+    color: #2980b9;
 }
 
 .output-container {
-  margin-top: 1.5rem;
-  background-color: #ecf0f1;
-  padding: 1rem;
-  border-radius: 4px;
+    margin-top: 1.5rem;
+    background-color: #ecf0f1;
+    padding: 1rem;
+    border-radius: 4px;
 }
 
 .result {
-  font-weight: bold;
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  color: #2c3e50;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-top: 1rem;
 }
 
 #imageContainer img {
-  max-width: 100%;
-  height: auto;
-  margin-top: 1.5rem;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    height: auto;
+    margin-top: 1.5rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .crop-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .crop-name {
-  font-weight: bold;
-  color: #2c3e50;
+    font-weight: bold;
+    color: #2c3e50;
+    flex: 1;
+    min-width: 120px;
 }
 
 .crop-value {
-  color: #27ae60;
+    color: #2c3e50;
+    flex: 1;
+    text-align: right;
+    min-width: 100px;
+}
+
+.crop-quantity {
+    width: 100px;
+    padding: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    text-align: right;
+    margin: 0 0.5rem;
+}
+
+.crop-ratio {
+    width: 50px;
+    padding: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    text-align: right;
+    margin: 0 0.5rem;
+}
+
+.crop-multiply {
+    color: #7f8c8d;
+    margin: 0 0.25rem;
 }
 
 .error-message {
-  color: #e74c3c;
-  margin-top: 1rem;
-  padding: 0.5rem;
-  background-color: #fadbd8;
-  border-radius: 4px;
+    color: #e74c3c;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: #fadbd8;
+    border-radius: 4px;
 }
 
 @media (max-width: 600px) {
-  .input-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-  #pasteButton,
-  #apiKeyInput,
-  .input-group a {
-    margin-right: 0;
-    margin-bottom: 1rem;
-  }
+    #pasteButton,
+    #apiKeyInput,
+    .input-group a {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
 
-  #apiKeyInput {
-    min-width: 0;
-  }
+    #apiKeyInput {
+        min-width: 0;
+    }
+
+    .crop-item {
+        flex-wrap: wrap;
+    }
+
+    .crop-name {
+        flex-basis: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .crop-quantity, .crop-ratio {
+        flex: 1;
+    }
+
+    .crop-value {
+        flex-basis: 100%;
+        text-align: left;
+        margin-top: 0.5rem;
+    }
 }
