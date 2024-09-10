@@ -84,6 +84,7 @@ async function extractTextFromImage(base64Image) {
         const result = await response.json();
         if (result.ParsedResults && result.ParsedResults.length > 0) {
             const extractedText = result.ParsedResults[0].ParsedText;
+            resetRatiosToDefault();  // Reset ratios before parsing new text
             parseAndCalculate(extractedText);
         } else {
             throw new Error("Failed to extract text from image.");
@@ -166,9 +167,6 @@ function recalculate() {
 
         item.querySelector('.crop-value').textContent = `= ${cropValue.toLocaleString()}`;
         totalValue += cropValue;
-
-        // Update the cropValueRatios array
-        cropValueRatios[index].ratio = ratio;
     });
 
     const result = document.getElementById("result");
@@ -192,4 +190,10 @@ function displayError(message, clearResult = true, clearImage = true) {
     if (clearImage) {
         document.getElementById("imageContainer").innerHTML = "";
     }
+}
+
+function resetRatiosToDefault() {
+    cropValueRatios.forEach((crop, index) => {
+        crop.ratio = cropValueRatios[index].ratio;
+    });
 }
