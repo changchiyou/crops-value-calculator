@@ -1,24 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crop Value Calculator</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="container">
+      <div class="header">
         <h1>Crop Value Calculator</h1>
-        <p>Paste an image from your clipboard to extract text and calculate crop values.</p>
-        <div class="input-group">
-            <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
-            <input type="text" id="apiKeyInput" placeholder="(Optional) Your OCR.SPACE API">
-            <a href="https://ocr.space/ocrapi/freekey" target="_blank" rel="noopener noreferrer">Get API Key</a>
+        <div class="disclaimer">
+          This tool is not intended for use by any r/pathofexile Reddit users,
+          as you are likely to
+          <a
+            href="https://github.com/changchiyou/crops-value-calculator/blob/main/images/Screenshot_2024-09-11-09-15-16-547_com.reddit.frontpage.png"
+            target="_blank"
+            rel="noopener noreferrer"
+            >consider it a useless project</a
+          >.
         </div>
-        <div id="imageContainer"></div>
-        <div id="output" class="output-container"></div>
-        <div id="result" class="result"></div>
+      </div>
+      <p>
+        Paste an image from your clipboard to extract text and calculate crop
+        values.
+      </p>
+      <div class="input-group">
+        <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
+        <input
+          type="text"
+          id="apiKeyInput"
+          placeholder="(Optional) Your OCR.SPACE API"
+        />
+        <a
+          href="https://ocr.space/ocrapi/freekey"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Get API Key</a
+        >
+      </div>
+      <div id="imageContainer"></div>
+      <div id="output" class="output-container"></div>
+      <div id="result" class="result"></div>
     </div>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
