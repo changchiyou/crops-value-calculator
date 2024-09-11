@@ -42,13 +42,28 @@ h1 {
   flex-shrink: 0;
 }
 
-.disclaimer a {
+.image-link {
   color: #3498db;
   text-decoration: none;
+  position: relative;
 }
 
-.disclaimer a:hover {
+.image-link:hover {
   text-decoration: underline;
+}
+
+#imagePreview {
+  display: none;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+#imagePreview img {
+  max-width: 300px;
+  max-height: 300px;
 }
 
 p {
@@ -183,6 +198,13 @@ p {
   .header {
     flex-direction: column;
     align-items: flex-start; /* Add this line */
+  }
+
+  .text-block {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-top: 1rem;
   }
 
   h1 {

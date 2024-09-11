@@ -14,6 +14,36 @@ document.addEventListener("DOMContentLoaded", () => {
   if (savedApiKey) {
     apiKeyInput.value = savedApiKey;
   }
+
+  const imageLink = document.querySelector(".image-link");
+  const imagePreview = document.getElementById("imagePreview");
+
+  imageLink.addEventListener("mouseover", function (e) {
+    const imageUrl = this.getAttribute("data-image");
+    imagePreview.innerHTML = `<img src="${imageUrl}" alt="Preview">`;
+    imagePreview.style.display = "block";
+
+    // Position the preview near the cursor
+    imagePreview.style.left = e.pageX + 10 + "px";
+    imagePreview.style.top = e.pageY + 10 + "px";
+  });
+
+  imageLink.addEventListener("mouseout", function () {
+    imagePreview.style.display = "none";
+  });
+
+  imageLink.addEventListener("mousemove", function (e) {
+    // Update position as the mouse moves
+    imagePreview.style.left = e.pageX + 10 + "px";
+    imagePreview.style.top = e.pageY + 10 + "px";
+  });
+
+  // Prevent default action when clicking the link
+  imageLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    const imageUrl = this.getAttribute("data-image");
+    window.open(imageUrl, "_blank");
+  });
 });
 
 // Save API key when input changes
