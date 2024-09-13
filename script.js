@@ -1,11 +1,11 @@
 const defaultApiKey = "091bfd2c2e88957";
 const apiKeyInput = document.getElementById("apiKeyInput");
 const cropValueRatios = [
-  { name: "Wheat", ratio: 12 },
-  { name: "Corn", ratio: 15 },
-  { name: "Pumpkin", ratio: 18 },
-  { name: "Orgourd", ratio: 21 },
-  { name: "Blue Zanthimum", ratio: 24 },
+  { name: "小麥", ratio: 12 },
+  { name: "玉米", ratio: 15 },
+  { name: "南瓜", ratio: 18 },
+  { name: "瓜果", ratio: 21 },
+  { name: "藍贊提蒙", ratio: 24 },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -194,7 +194,7 @@ function calculateCropValue(crops) {
       el.style.opacity = "1"; // Fade back in
     });
 
-    result.textContent = `Total value: ${totalValue.toLocaleString()}`;
+    result.textContent = `農作物總價值: ${totalValue.toLocaleString()}`;
     result.style.opacity = "1"; // Fade back in
   }, 500); // Wait for the fade-out to finish
 
@@ -219,7 +219,7 @@ function recalculate() {
   });
 
   const result = document.getElementById("result");
-  result.textContent = `Total value: ${totalValue.toLocaleString()}`;
+  result.textContent = `農作物總價值: ${totalValue.toLocaleString()}`;
 }
 
 function displayError(message) {

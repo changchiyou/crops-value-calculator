@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crop Value Calculator</title>
+    <title>3.25 農作物總價值計算機</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <!-- Google tag (gtag.js) -->
@@ -23,7 +23,7 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Crop Value Calculator</h1>
+        <h1>3.25 農作物總價值計算機</h1>
         <div class="disclaimer">
           ⚠️ This tool is not intended for users of r/pathofexile on Reddit, as
           they are likely to
@@ -35,24 +35,25 @@
           >.
         </div>
       </div>
-      <p>
-        Paste an image from your clipboard to extract text and calculate crop
-        values.
-      </p>
+      <p>從剪貼版貼上圖片以提取農作物數量並計算總價值。</p>
       <div class="input-group">
         <button id="pasteButton">
-          <span class="button-text">Paste Image</span>
+          <span class="button-text">貼上圖片</span>
           <span class="processing-text">
-            Processing <span class="dot-1">.</span><span class="dot-2">.</span
+            正在處理 <span class="dot-1">.</span><span class="dot-2">.</span
             ><span class="dot-3">.</span>
           </span>
         </button>
-        <input type="text" id="apiKeyInput" placeholder="Enter API Key" />
+        <input
+          type="text"
+          id="apiKeyInput"
+          placeholder="(非必要) 你的 OCR.SPACE API 金鑰"
+        />
         <a
           href="https://ocr.space/ocrapi/freekey"
           target="_blank"
           rel="noopener noreferrer"
-          >Get API Key</a
+          >註冊免費金鑰</a
         >
       </div>
       <div id="imageContainer"></div>
@@ -73,7 +74,7 @@
         data-emit-metadata="1"
         data-input-position="top"
         data-theme="dark"
-        data-lang="en"
+        data-lang="zh-TW"
         data-loading="lazy"
         crossorigin="anonymous"
         async
