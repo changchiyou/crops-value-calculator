@@ -58,8 +58,11 @@ apiKeyInput.addEventListener("change", () => {
   }
 });
 
+const pasteButton = document.getElementById("pasteButton");
+
 async function pasteImage() {
   try {
+    pasteButton.classList.add("processing");
     const items = await navigator.clipboard.read();
     let imageFound = false;
 
@@ -73,15 +76,18 @@ async function pasteImage() {
         const base64Image = reader.result.split(",")[1];
         showPastedImage(reader.result);
         await extractTextFromImage(base64Image);
+        pasteButton.classList.remove("processing");
       };
     }
 
     if (!imageFound) {
       displayError("No image found in the clipboard.");
+      pasteButton.classList.remove("processing");
     }
   } catch (err) {
     displayError("Failed to access clipboard: " + err.message);
     console.error("Failed to paste image:", err);
+    pasteButton.classList.remove("processing");
   }
 }
 
@@ -222,14 +228,4 @@ function displayError(message) {
 }
 
 // Add event listener for the paste button
-document.getElementById("pasteButton").addEventListener("click", pasteImage);
-
-// Save API key when input changes
-apiKeyInput.addEventListener("change", () => {
-  const apiKey = apiKeyInput.value.trim();
-  if (apiKey) {
-    localStorage.setItem("ocrApiKey", apiKey);
-  } else {
-    localStorage.removeItem("ocrApiKey");
-  }
-});
+pasteButton.addEventListener("click", pasteImage);

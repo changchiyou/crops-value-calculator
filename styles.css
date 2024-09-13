@@ -21,7 +21,7 @@ body {
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Change this from flex-start to center */
+  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -82,17 +82,70 @@ p {
   background-color: #3498db;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem; /* Increase padding for better height */
   font-size: 1rem;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-right: 1rem;
   flex-shrink: 0;
+  position: relative;
+  min-width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 #pasteButton:hover {
   background-color: #2980b9;
+}
+
+.button-text,
+.processing-text {
+  position: absolute;
+  white-space: nowrap; /* Ensure both texts stay on one line */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+}
+
+.processing-text {
+  opacity: 0;
+}
+
+#pasteButton.processing .button-text {
+  opacity: 0;
+}
+
+#pasteButton.processing .processing-text {
+  opacity: 1;
+}
+
+@keyframes dotAnimation {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.dot-1,
+.dot-2,
+.dot-3 {
+  animation: dotAnimation 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.dot-2 {
+  animation-delay: 0.2s;
+}
+
+.dot-3 {
+  animation-delay: 0.4s;
 }
 
 #apiKeyInput {
@@ -204,7 +257,7 @@ p {
 @media (max-width: 600px) {
   .header {
     flex-direction: column;
-    align-items: flex-start; /* Add this line */
+    align-items: flex-start;
   }
 
   .text-block {
@@ -215,7 +268,7 @@ p {
   }
 
   h1 {
-    margin-bottom: 1rem; /* Add this line to give some space between h1 and disclaimer */
+    margin-bottom: 1rem;
   }
 
   .disclaimer {

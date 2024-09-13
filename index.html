@@ -40,12 +40,14 @@
         values.
       </p>
       <div class="input-group">
-        <button id="pasteButton" onclick="pasteImage()">Paste Image</button>
-        <input
-          type="text"
-          id="apiKeyInput"
-          placeholder="(Optional) Your OCR.SPACE API"
-        />
+        <button id="pasteButton">
+          <span class="button-text">Paste Image</span>
+          <span class="processing-text">
+            Processing <span class="dot-1">.</span><span class="dot-2">.</span
+            ><span class="dot-3">.</span>
+          </span>
+        </button>
+        <input type="text" id="apiKeyInput" placeholder="Enter API Key" />
         <a
           href="https://ocr.space/ocrapi/freekey"
           target="_blank"
