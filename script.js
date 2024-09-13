@@ -137,9 +137,7 @@ function parseAndCalculate(text) {
 
   if (numericValues.length !== 5) {
     displayError(
-      "Expected exactly 5 crop values, but found " +
-        numericValues.length +
-        ". Using existing values.",
+      "Expected exactly 5 crop values, but found " + numericValues.length,
       false,
       false,
     );
@@ -218,17 +216,9 @@ function recalculate() {
   result.textContent = `Total value: ${totalValue.toLocaleString()}`;
 }
 
-function displayError(message, clearResult = true, clearImage = true) {
-  const output = document.getElementById("output");
-  output.innerHTML += `<div class="error-message">${message}</div>`;
-
-  if (clearResult) {
-    document.getElementById("result").textContent = "";
-  }
-
-  if (clearImage) {
-    document.getElementById("imageContainer").innerHTML = "";
-  }
+function displayError(message) {
+  const result = document.getElementById("result");
+  result.innerHTML = `<div class="error-message">${message}</div>`;
 }
 
 // Add event listener for the paste button
