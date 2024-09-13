@@ -187,6 +187,7 @@ p {
   width: 8%;
 }
 
+.crop-equal,
 .crop-multiply {
   color: #7f8c8d;
   margin: 0 0.25rem;

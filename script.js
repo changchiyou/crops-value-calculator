@@ -8,12 +8,14 @@ const cropValueRatios = [
   { name: "Blue Zanthimum", ratio: 24 },
 ];
 
-// Load saved API key on page load
 document.addEventListener("DOMContentLoaded", () => {
   const savedApiKey = localStorage.getItem("ocrApiKey");
   if (savedApiKey) {
     apiKeyInput.value = savedApiKey;
   }
+
+  // Initialize the table with default values
+  calculateCropValue(new Array(5).fill(10000));
 
   const imageLink = document.querySelector(".image-link");
   const imagePreview = document.getElementById("imagePreview");
@@ -114,7 +116,6 @@ async function extractTextFromImage(base64Image) {
     const result = await response.json();
     if (result.ParsedResults && result.ParsedResults.length > 0) {
       const extractedText = result.ParsedResults[0].ParsedText;
-      resetRatiosToDefault(); // Reset ratios before parsing new text
       parseAndCalculate(extractedText);
     } else {
       throw new Error("Failed to extract text from image.");
@@ -136,49 +137,62 @@ function parseAndCalculate(text) {
 
   if (numericValues.length !== 5) {
     displayError(
-      "Expected exactly 5 crop values, but found " + numericValues.length + ".",
-      true,
+      "Expected exactly 5 crop values, but found " +
+        numericValues.length +
+        ". Using existing values.",
+      false,
       false,
     );
-    return;
+  } else {
+    calculateCropValue(numericValues);
   }
-
-  calculateCropValue(numericValues);
 }
 
 function calculateCropValue(crops) {
   let totalValue = 0;
   let outputHTML = "";
 
-  crops.forEach((cropQuantity, index) => {
-    const { name, ratio } = cropValueRatios[index];
-    const cropValue = cropQuantity * ratio;
+  cropValueRatios.forEach((crop, index) => {
+    const cropQuantity = crops[index] || 10000; // Use 10000 as default if no value provided
+    const cropValue = cropQuantity * crop.ratio;
     outputHTML += `
-            <div class="crop-item">
-                <span class="crop-name">${name}:</span>
-                <input type="number" class="crop-quantity" value="${cropQuantity}" min="0">
-                <span class="crop-multiply">×</span>
-                <input type="number" class="crop-ratio" value="${ratio}" min="0">
-                <span class="crop-value">= ${cropValue.toLocaleString()}</span>
-            </div>
-        `;
+      <div class="crop-item">
+        <span class="crop-name">${crop.name}:</span>
+        <input type="number" class="crop-quantity" value="${cropQuantity}" min="0">
+        <span class="crop-multiply">×</span>
+        <input type="number" class="crop-ratio" value="${crop.ratio}" min="0">
+        <span class="crop-equal">=</span>
+        <span class="crop-value">${cropValue.toLocaleString()}</span>
+      </div>
+    `;
     totalValue += cropValue;
   });
 
   const output = document.getElementById("output");
   output.innerHTML = outputHTML;
-  output.style.opacity = "0";
 
   const result = document.getElementById("result");
-  result.textContent = `Total value: ${totalValue.toLocaleString()}`;
+
+  // First, fade out the crop values and result
+  document.querySelectorAll(".crop-value").forEach((el) => {
+    el.style.transition = "opacity 0.5s ease-in-out";
+    el.style.opacity = "0";
+  });
+  result.style.transition = "opacity 0.5s ease-in-out";
   result.style.opacity = "0";
 
+  // Wait for the fade-out transition to complete before updating the content
   setTimeout(() => {
-    output.style.transition = "opacity 0.5s ease-in-out";
-    result.style.transition = "opacity 0.5s ease-in-out";
-    output.style.opacity = "1";
-    result.style.opacity = "1";
-  }, 100);
+    // Update the crop values and result content after fade-out
+    document.querySelectorAll(".crop-value").forEach((el, index) => {
+      const cropValue = crops[index] * cropValueRatios[index].ratio;
+      el.textContent = `${cropValue.toLocaleString()}`;
+      el.style.opacity = "1"; // Fade back in
+    });
+
+    result.textContent = `Total value: ${totalValue.toLocaleString()}`;
+    result.style.opacity = "1"; // Fade back in
+  }, 500); // Wait for the fade-out to finish
 
   // Add event listeners to the new input fields
   document.querySelectorAll(".crop-quantity, .crop-ratio").forEach((input) => {
@@ -190,13 +204,13 @@ function recalculate() {
   const cropItems = document.querySelectorAll(".crop-item");
   let totalValue = 0;
 
-  cropItems.forEach((item, index) => {
+  cropItems.forEach((item) => {
     const quantity = parseInt(item.querySelector(".crop-quantity").value) || 0;
     const ratio = parseInt(item.querySelector(".crop-ratio").value) || 0;
     const cropValue = quantity * ratio;
 
     item.querySelector(".crop-value").textContent =
-      `= ${cropValue.toLocaleString()}`;
+      `${cropValue.toLocaleString()}`;
     totalValue += cropValue;
   });
 
@@ -206,13 +220,7 @@ function recalculate() {
 
 function displayError(message, clearResult = true, clearImage = true) {
   const output = document.getElementById("output");
-  output.innerHTML = `<div class="error-message">${message}</div>`;
-  output.style.opacity = "0";
-
-  setTimeout(() => {
-    output.style.transition = "opacity 0.5s ease-in-out";
-    output.style.opacity = "1";
-  }, 100);
+  output.innerHTML += `<div class="error-message">${message}</div>`;
 
   if (clearResult) {
     document.getElementById("result").textContent = "";
@@ -223,8 +231,15 @@ function displayError(message, clearResult = true, clearImage = true) {
   }
 }
 
-function resetRatiosToDefault() {
-  cropValueRatios.forEach((crop, index) => {
-    crop.ratio = cropValueRatios[index].ratio;
-  });
-}
+// Add event listener for the paste button
+document.getElementById("pasteButton").addEventListener("click", pasteImage);
+
+// Save API key when input changes
+apiKeyInput.addEventListener("change", () => {
+  const apiKey = apiKeyInput.value.trim();
+  if (apiKey) {
+    localStorage.setItem("ocrApiKey", apiKey);
+  } else {
+    localStorage.removeItem("ocrApiKey");
+  }
+});
