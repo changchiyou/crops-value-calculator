@@ -1,6 +1,6 @@
 # [Crops Value Calculator](https://changchiyou.github.io/crops-value-calculator/) (for Path of Exile 3.25)
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > This tool is not intended for users of r/pathofexile on Reddit, as they are likely to [consider it a useless project](/images/Screenshot_2024-09-11-09-15-16-547_com.reddit.frontpage.png).
 
 This tool saves you time by eliminating the need to:
