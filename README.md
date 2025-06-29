@@ -1,4 +1,4 @@
-# [Crops Value Calculator](https://changchiyou.github.io/crops-value-calculator/) (for POE 3.25)
+# [Crops Value Calculator](https://changchiyou.github.io/crops-value-calculator/) (for POE Kingsmarch)
 
 > [!IMPORTANT]
 > This tool is not intended for users of r/pathofexile on Reddit, as they are likely to [consider it a useless project](/images/Screenshot_2024-09-11-09-15-16-547_com.reddit.frontpage.png).
