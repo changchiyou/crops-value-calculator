@@ -131,18 +131,34 @@ async function extractTextFromImage(base64Image) {
     if (result.ParsedResults && result.ParsedResults.length > 0) {
       const lines = result.ParsedResults[0].TextOverlay?.Lines;
       if (lines && lines.length > 0) {
-        // Sort lines by position: top-to-bottom, then left-to-right (Z-order)
+        // Custom sort for the specific layout:
+        // 1. Left column top-to-bottom (3 items)
+        // 2. Right column top-to-bottom (1 item + 1 item below)
+        // 3. Bottom row left-to-right (dust + 5 crops)
         const sortedLines = lines.sort((a, b) => {
-          const lineHeightThreshold = 20; // Lines within this Y distance are considered on same row
-          const yDiff = a.MinTop - b.MinTop;
+          const midX = 600; // Approximate middle X coordinate
+          const dustRowY = 400; // Approximate Y coordinate where dust row starts
 
-          // If lines are roughly on the same horizontal level
-          if (Math.abs(yDiff) < lineHeightThreshold) {
-            // Sort by X position (left to right)
+          const aIsLeft = a.MinLeft < midX;
+          const bIsLeft = b.MinLeft < midX;
+          const aIsDustRow = a.MinTop > dustRowY;
+          const bIsDustRow = b.MinTop > dustRowY;
+
+          // Dust row items: sort by X position (left to right)
+          if (aIsDustRow && bIsDustRow) {
             return a.MinLeft - b.MinLeft;
           }
-          // Otherwise sort by Y position (top to bottom)
-          return yDiff;
+
+          // One in dust row, one not: dust row comes last
+          if (aIsDustRow) return 1;
+          if (bIsDustRow) return -1;
+
+          // Top section: separate left and right columns
+          if (aIsLeft && !bIsLeft) return -1; // Left column first
+          if (!aIsLeft && bIsLeft) return 1;  // Right column second
+
+          // Within same column: sort by Y position (top to bottom)
+          return a.MinTop - b.MinTop;
         });
 
         const extractedText = sortedLines.map(line => line.LineText).join(' ');
