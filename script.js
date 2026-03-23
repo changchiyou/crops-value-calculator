@@ -187,12 +187,31 @@ function parseAndCalculate(text) {
 function calculateAllValues(crops, ores) {
   let cropTotalValue = 0;
   let oreTotalValue = 0;
-  let outputHTML = '<div class="section-title">農作物</div>';
 
+  // Build ore section HTML
+  let oreHTML = '<div class="section-title">礦物</div>';
+  oreValueRatios.forEach((ore, index) => {
+    const oreQuantity = ores[index] || 10000;
+    const oreValue = oreQuantity * ore.ratio;
+    oreHTML += `
+      <div class="crop-item">
+        <span class="crop-name">${ore.name}:</span>
+        <input type="number" class="crop-quantity" value="${oreQuantity}" min="0" data-type="ore" data-index="${index}">
+        <span class="crop-multiply">×</span>
+        <input type="number" class="crop-ratio" value="${ore.ratio}" min="0" data-type="ore" data-index="${index}">
+        <span class="crop-equal">=</span>
+        <span class="crop-value">${oreValue.toLocaleString()}</span>
+      </div>
+    `;
+    oreTotalValue += oreValue;
+  });
+
+  // Build crop section HTML
+  let cropHTML = '<div class="section-title">農作物</div>';
   cropValueRatios.forEach((crop, index) => {
     const cropQuantity = crops[index] || 10000;
     const cropValue = cropQuantity * crop.ratio;
-    outputHTML += `
+    cropHTML += `
       <div class="crop-item">
         <span class="crop-name">${crop.name}:</span>
         <input type="number" class="crop-quantity" value="${cropQuantity}" min="0" data-type="crop" data-index="${index}">
@@ -205,23 +224,13 @@ function calculateAllValues(crops, ores) {
     cropTotalValue += cropValue;
   });
 
-  outputHTML += '<div class="section-title">礦物</div>';
-
-  oreValueRatios.forEach((ore, index) => {
-    const oreQuantity = ores[index] || 10000;
-    const oreValue = oreQuantity * ore.ratio;
-    outputHTML += `
-      <div class="crop-item">
-        <span class="crop-name">${ore.name}:</span>
-        <input type="number" class="crop-quantity" value="${oreQuantity}" min="0" data-type="ore" data-index="${index}">
-        <span class="crop-multiply">×</span>
-        <input type="number" class="crop-ratio" value="${ore.ratio}" min="0" data-type="ore" data-index="${index}">
-        <span class="crop-equal">=</span>
-        <span class="crop-value">${oreValue.toLocaleString()}</span>
-      </div>
-    `;
-    oreTotalValue += oreValue;
-  });
+  // Combine into two columns
+  let outputHTML = `
+    <div class="sections-container">
+      <div class="section-column">${oreHTML}</div>
+      <div class="section-column">${cropHTML}</div>
+    </div>
+  `;
 
   const output = document.getElementById("output");
   output.innerHTML = outputHTML;
