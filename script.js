@@ -129,45 +129,9 @@ async function extractTextFromImage(base64Image) {
 
     const result = await response.json();
     if (result.ParsedResults && result.ParsedResults.length > 0) {
-      const lines = result.ParsedResults[0].TextOverlay?.Lines;
-      if (lines && lines.length > 0) {
-        // Custom sort for the specific layout:
-        // 1. Left column top-to-bottom (3 items)
-        // 2. Right column top-to-bottom (2 items)
-        // 3. Bottom row left-to-right (dust + 5 crops)
-        const sortedLines = lines.sort((a, b) => {
-          const midX = 600; // Approximate middle X coordinate separating left/right columns
-          const dustRowY = 400; // Approximate Y coordinate where dust row starts
-
-          const aIsLeft = a.MinLeft < midX;
-          const bIsLeft = b.MinLeft < midX;
-          const aIsDustRow = a.MinTop > dustRowY;
-          const bIsDustRow = b.MinTop > dustRowY;
-
-          // Dust row items: sort by X position (left to right)
-          if (aIsDustRow && bIsDustRow) {
-            return a.MinLeft - b.MinLeft;
-          }
-
-          // One in dust row, one not: dust row comes last
-          if (aIsDustRow) return 1;
-          if (bIsDustRow) return -1;
-
-          // Top section: left column first, then right column
-          if (aIsLeft && !bIsLeft) return -1; // Left column comes first
-          if (!aIsLeft && bIsLeft) return 1;  // Right column comes second
-
-          // Within same column: sort by Y position (top to bottom)
-          return a.MinTop - b.MinTop;
-        });
-
-        const extractedText = sortedLines.map(line => line.LineText).join(' ');
-        parseAndCalculate(extractedText);
-      } else {
-        // Fallback to original method if no position data
-        const extractedText = result.ParsedResults[0].ParsedText;
-        parseAndCalculate(extractedText);
-      }
+      // Use OCR's built-in reading order
+      const extractedText = result.ParsedResults[0].ParsedText;
+      parseAndCalculate(extractedText);
     } else {
       throw new Error("Failed to extract text from image.");
     }
@@ -188,14 +152,34 @@ function parseAndCalculate(text) {
 
   if (numericValues.length !== 11) {
     displayError(
-      "Expected exactly 11 values (5 ores + 1 dust + 5 crops), but found " + numericValues.length,
+      "Expected exactly 11 values, but found " + numericValues.length + ". Order: 緋紅鍛鐵錠、山銅錠、石化琥珀錠、粉塵、小麥、玉米、南瓜、鉍錠、維里西姆錠、瓜果、藍贊提蒙",
       false,
       false,
     );
   } else {
-    const ores = numericValues.slice(0, 5);  // 前 5 個是礦物
-    // numericValues[5] 是粉塵，跳過
-    const crops = numericValues.slice(6, 11); // 後 5 個是農作物
+    // OCR 讀取順序：緋紅鍛鐵錠、山銅錠、石化琥珀錠、粉塵、小麥、玉米、南瓜、鉍錠、維里西姆錠、瓜果、藍贊提蒙
+    // Index:        0          1        2          3     4     5     6     7      8          9     10
+
+    // 礦物順序需調整為：緋紅鍛鐵錠(0)、山銅錠(1)、石化琥珀錠(2)、鉍錠(7)、維里西姆錠(8)
+    const ores = [
+      numericValues[0],  // 緋紅鍛鐵錠
+      numericValues[1],  // 山銅錠
+      numericValues[2],  // 石化琥珀錠
+      numericValues[7],  // 鉍錠
+      numericValues[8],  // 維里西姆錠
+    ];
+
+    // 農作物順序：小麥(4)、玉米(5)、南瓜(6)、瓜果(9)、藍贊提蒙(10)
+    const crops = [
+      numericValues[4],  // 小麥
+      numericValues[5],  // 玉米
+      numericValues[6],  // 南瓜
+      numericValues[9],  // 瓜果
+      numericValues[10], // 藍贊提蒙
+    ];
+
+    // numericValues[3] 是粉塵，跳過不處理
+
     calculateAllValues(crops, ores);
   }
 }
