@@ -129,8 +129,29 @@ async function extractTextFromImage(base64Image) {
 
     const result = await response.json();
     if (result.ParsedResults && result.ParsedResults.length > 0) {
-      const extractedText = result.ParsedResults[0].ParsedText;
-      parseAndCalculate(extractedText);
+      const lines = result.ParsedResults[0].TextOverlay?.Lines;
+      if (lines && lines.length > 0) {
+        // Sort lines by position: top-to-bottom, then left-to-right (Z-order)
+        const sortedLines = lines.sort((a, b) => {
+          const lineHeightThreshold = 20; // Lines within this Y distance are considered on same row
+          const yDiff = a.MinTop - b.MinTop;
+
+          // If lines are roughly on the same horizontal level
+          if (Math.abs(yDiff) < lineHeightThreshold) {
+            // Sort by X position (left to right)
+            return a.MinLeft - b.MinLeft;
+          }
+          // Otherwise sort by Y position (top to bottom)
+          return yDiff;
+        });
+
+        const extractedText = sortedLines.map(line => line.LineText).join(' ');
+        parseAndCalculate(extractedText);
+      } else {
+        // Fallback to original method if no position data
+        const extractedText = result.ParsedResults[0].ParsedText;
+        parseAndCalculate(extractedText);
+      }
     } else {
       throw new Error("Failed to extract text from image.");
     }
