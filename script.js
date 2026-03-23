@@ -133,10 +133,10 @@ async function extractTextFromImage(base64Image) {
       if (lines && lines.length > 0) {
         // Custom sort for the specific layout:
         // 1. Left column top-to-bottom (3 items)
-        // 2. Right column top-to-bottom (1 item + 1 item below)
+        // 2. Right column top-to-bottom (2 items)
         // 3. Bottom row left-to-right (dust + 5 crops)
         const sortedLines = lines.sort((a, b) => {
-          const midX = 600; // Approximate middle X coordinate
+          const midX = 600; // Approximate middle X coordinate separating left/right columns
           const dustRowY = 400; // Approximate Y coordinate where dust row starts
 
           const aIsLeft = a.MinLeft < midX;
@@ -153,9 +153,9 @@ async function extractTextFromImage(base64Image) {
           if (aIsDustRow) return 1;
           if (bIsDustRow) return -1;
 
-          // Top section: separate left and right columns
-          if (aIsLeft && !bIsLeft) return -1; // Left column first
-          if (!aIsLeft && bIsLeft) return 1;  // Right column second
+          // Top section: left column first, then right column
+          if (aIsLeft && !bIsLeft) return -1; // Left column comes first
+          if (!aIsLeft && bIsLeft) return 1;  // Right column comes second
 
           // Within same column: sort by Y position (top to bottom)
           return a.MinTop - b.MinTop;
