@@ -320,6 +320,31 @@ p {
   }
 }
 
+.section-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background-color: #d5dbe0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.total-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #27ae60;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid #27ae60;
+}
+
 hr.style-emb {
   border: 0;
   height: 0;

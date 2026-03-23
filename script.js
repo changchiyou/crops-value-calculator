@@ -8,6 +8,14 @@ const cropValueRatios = [
   { name: "藍贊提蒙", ratio: 24 },
 ];
 
+const oreValueRatios = [
+  { name: "緋紅鍛鐵錠", ratio: 16 },
+  { name: "山銅錠", ratio: 19 },
+  { name: "石化琥珀錠", ratio: 24 },
+  { name: "鉍錠", ratio: 37 },
+  { name: "維里西姆錠", ratio: 64 },
+];
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedApiKey = localStorage.getItem("ocrApiKey");
   if (savedApiKey) {
@@ -15,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Initialize the table with default values
-  calculateCropValue(new Array(5).fill(10000));
+  calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
 
   const imageLink = document.querySelector(".image-link");
   const imagePreview = document.getElementById("imagePreview");
@@ -141,35 +149,57 @@ function parseAndCalculate(text) {
     if (number) numericValues.push(parseInt(number));
   });
 
-  if (numericValues.length !== 5) {
+  if (numericValues.length !== 11) {
     displayError(
-      "Expected exactly 5 crop values, but found " + numericValues.length,
+      "Expected exactly 11 values (5 ores + 1 dust + 5 crops), but found " + numericValues.length,
       false,
       false,
     );
   } else {
-    calculateCropValue(numericValues);
+    const ores = numericValues.slice(0, 5);  // 前 5 個是礦物
+    // numericValues[5] 是粉塵，跳過
+    const crops = numericValues.slice(6, 11); // 後 5 個是農作物
+    calculateAllValues(crops, ores);
   }
 }
 
-function calculateCropValue(crops) {
-  let totalValue = 0;
-  let outputHTML = "";
+function calculateAllValues(crops, ores) {
+  let cropTotalValue = 0;
+  let oreTotalValue = 0;
+  let outputHTML = '<div class="section-title">農作物</div>';
 
   cropValueRatios.forEach((crop, index) => {
-    const cropQuantity = crops[index] || 10000; // Use 10000 as default if no value provided
+    const cropQuantity = crops[index] || 10000;
     const cropValue = cropQuantity * crop.ratio;
     outputHTML += `
       <div class="crop-item">
         <span class="crop-name">${crop.name}:</span>
-        <input type="number" class="crop-quantity" value="${cropQuantity}" min="0">
+        <input type="number" class="crop-quantity" value="${cropQuantity}" min="0" data-type="crop" data-index="${index}">
         <span class="crop-multiply">×</span>
-        <input type="number" class="crop-ratio" value="${crop.ratio}" min="0">
+        <input type="number" class="crop-ratio" value="${crop.ratio}" min="0" data-type="crop" data-index="${index}">
         <span class="crop-equal">=</span>
         <span class="crop-value">${cropValue.toLocaleString()}</span>
       </div>
     `;
-    totalValue += cropValue;
+    cropTotalValue += cropValue;
+  });
+
+  outputHTML += '<div class="section-title">礦物</div>';
+
+  oreValueRatios.forEach((ore, index) => {
+    const oreQuantity = ores[index] || 10000;
+    const oreValue = oreQuantity * ore.ratio;
+    outputHTML += `
+      <div class="crop-item">
+        <span class="crop-name">${ore.name}:</span>
+        <input type="number" class="crop-quantity" value="${oreQuantity}" min="0" data-type="ore" data-index="${index}">
+        <span class="crop-multiply">×</span>
+        <input type="number" class="crop-ratio" value="${ore.ratio}" min="0" data-type="ore" data-index="${index}">
+        <span class="crop-equal">=</span>
+        <span class="crop-value">${oreValue.toLocaleString()}</span>
+      </div>
+    `;
+    oreTotalValue += oreValue;
   });
 
   const output = document.getElementById("output");
@@ -189,14 +219,24 @@ function calculateCropValue(crops) {
   setTimeout(() => {
     // Update the crop values and result content after fade-out
     document.querySelectorAll(".crop-value").forEach((el, index) => {
-      const cropValue = crops[index] * cropValueRatios[index].ratio;
-      el.textContent = `${cropValue.toLocaleString()}`;
-      el.style.opacity = "1"; // Fade back in
+      if (index < 5) {
+        const cropValue = crops[index] * cropValueRatios[index].ratio;
+        el.textContent = `${cropValue.toLocaleString()}`;
+      } else {
+        const oreIndex = index - 5;
+        const oreValue = ores[oreIndex] * oreValueRatios[oreIndex].ratio;
+        el.textContent = `${oreValue.toLocaleString()}`;
+      }
+      el.style.opacity = "1";
     });
 
-    result.textContent = `農作物總價值: ${totalValue.toLocaleString()}`;
-    result.style.opacity = "1"; // Fade back in
-  }, 500); // Wait for the fade-out to finish
+    result.innerHTML = `
+      <div>農作物總價值: ${cropTotalValue.toLocaleString()}</div>
+      <div>礦物總價值: ${oreTotalValue.toLocaleString()}</div>
+      <div class="total-value">總計: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
+    `;
+    result.style.opacity = "1";
+  }, 500);
 
   // Add event listeners to the new input fields
   document.querySelectorAll(".crop-quantity, .crop-ratio").forEach((input) => {
@@ -206,20 +246,30 @@ function calculateCropValue(crops) {
 
 function recalculate() {
   const cropItems = document.querySelectorAll(".crop-item");
-  let totalValue = 0;
+  let cropTotalValue = 0;
+  let oreTotalValue = 0;
 
   cropItems.forEach((item) => {
     const quantity = parseInt(item.querySelector(".crop-quantity").value) || 0;
     const ratio = parseInt(item.querySelector(".crop-ratio").value) || 0;
-    const cropValue = quantity * ratio;
+    const value = quantity * ratio;
 
-    item.querySelector(".crop-value").textContent =
-      `${cropValue.toLocaleString()}`;
-    totalValue += cropValue;
+    item.querySelector(".crop-value").textContent = `${value.toLocaleString()}`;
+
+    const type = item.querySelector(".crop-quantity").getAttribute("data-type");
+    if (type === "crop") {
+      cropTotalValue += value;
+    } else if (type === "ore") {
+      oreTotalValue += value;
+    }
   });
 
   const result = document.getElementById("result");
-  result.textContent = `農作物總價值: ${totalValue.toLocaleString()}`;
+  result.innerHTML = `
+    <div>農作物總價值: ${cropTotalValue.toLocaleString()}</div>
+    <div>礦物總價值: ${oreTotalValue.toLocaleString()}</div>
+    <div class="total-value">總計: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
+  `;
 }
 
 function displayError(message) {
