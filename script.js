@@ -17,6 +17,7 @@ const i18n = {
     oreTotal: "礦物總價值",
     grandTotal: "總價值",
     miningTotal: "預估全部冶煉完成",
+    projectedTotal: "冶煉完成後總價值",
     minedPrefix: "已挖",
     toMinePrefix: "待挖",
     totalPrefix: "共",
@@ -45,6 +46,7 @@ const i18n = {
     oreTotal: "Bars Total",
     grandTotal: "Grand Total",
     miningTotal: "Est. all smelting done",
+    projectedTotal: "Projected total after smelting",
     minedPrefix: "mined",
     toMinePrefix: "to mine",
     totalPrefix: "total",
@@ -554,13 +556,24 @@ function calculateAllValues(crops, ores, miningData = null) {
       el.style.opacity = "1";
     });
 
+    let projectedOreTotalValue = oreTotalValue;
+    if (miningData) {
+      oreValueRatios.forEach((ore, index) => {
+        const total = (miningData.minedOre[index] || 0) + (miningData.oreToMine[index] || 0);
+        projectedOreTotalValue += total * ore.ratio;
+      });
+    }
+
     let resultHTML = `
       <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
       <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
       <div class="total-value">${t("grandTotal")}: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
     `;
     if (miningData) {
-      resultHTML += `<div class="total-mining-time">${t("miningTotal")}: ${formatDuration(totalMiningHours)}</div>`;
+      resultHTML += `
+        <div class="total-mining-time">${t("miningTotal")}: ${formatDuration(totalMiningHours)}</div>
+        <div class="projected-total">${t("projectedTotal")}: ${(cropTotalValue + projectedOreTotalValue).toLocaleString()}</div>
+      `;
     }
     result.innerHTML = resultHTML;
     result.style.opacity = "1";
@@ -597,13 +610,16 @@ function recalculate() {
 
   const result = document.getElementById("result");
   const totalMiningEl = result.querySelector(".total-mining-time");
+  const projectedEl = result.querySelector(".projected-total");
   const totalMiningHTML = totalMiningEl ? totalMiningEl.outerHTML : "";
+  const projectedHTML = projectedEl ? projectedEl.outerHTML : "";
 
   result.innerHTML = `
     <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
     <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
     <div class="total-value">${t("grandTotal")}: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
     ${totalMiningHTML}
+    ${projectedHTML}
   `;
 }
 
@@ -626,6 +642,38 @@ function recalculateMining() {
   const totalMiningEl = result.querySelector(".total-mining-time");
   if (totalMiningEl) {
     totalMiningEl.textContent = `${t("miningTotal")}: ${formatDuration(totalMiningHours)}`;
+  }
+
+  const projectedEl = result.querySelector(".projected-total");
+  if (projectedEl) {
+    let cropTotalValue = 0;
+    document.querySelectorAll(".crop-item:not(.mining-item)").forEach((item) => {
+      const quantityEl = item.querySelector(".crop-quantity");
+      const ratioEl = item.querySelector(".crop-ratio");
+      if (!quantityEl || !ratioEl) return;
+      if (quantityEl.getAttribute("data-type") === "crop") {
+        cropTotalValue += (parseInt(quantityEl.value, 10) || 0) * (parseInt(ratioEl.value, 10) || 0);
+      }
+    });
+
+    let projectedOreTotalValue = 0;
+    document.querySelectorAll(".crop-item:not(.mining-item)").forEach((item) => {
+      const quantityEl = item.querySelector(".crop-quantity");
+      const ratioEl = item.querySelector(".crop-ratio");
+      if (!quantityEl || !ratioEl) return;
+      if (quantityEl.getAttribute("data-type") === "ore") {
+        projectedOreTotalValue += (parseInt(quantityEl.value, 10) || 0) * (parseInt(ratioEl.value, 10) || 0);
+      }
+    });
+
+    document.querySelectorAll(".mining-item").forEach((item) => {
+      const index = parseInt(item.querySelector(".mining-mined").getAttribute("data-index"), 10);
+      const mined = parseInt(item.querySelector(".mining-mined").value, 10) || 0;
+      const toMine = parseInt(item.querySelector(".mining-to-mine").value, 10) || 0;
+      projectedOreTotalValue += (mined + toMine) * oreValueRatios[index].ratio;
+    });
+
+    projectedEl.textContent = `${t("projectedTotal")}: ${(cropTotalValue + projectedOreTotalValue).toLocaleString()}`;
   }
 }
 
