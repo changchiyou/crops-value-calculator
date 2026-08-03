@@ -88,6 +88,12 @@ p {
   margin-bottom: 1.5rem;
 }
 
+.version-note {
+  font-size: 0.75rem;
+  color: #95a5a6;
+  margin: -0.75rem 0 1rem;
+}
+
 .input-group {
   display: flex;
   align-items: center;
@@ -631,6 +637,10 @@ hr.style-emb {
 
   p {
     color: #c0c0c0;
+  }
+
+  .version-note {
+    color: #666;
   }
 
   .lang-toggle {
