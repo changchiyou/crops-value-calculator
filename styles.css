@@ -59,6 +59,19 @@ h1 {
   background-color: #ecf0f1;
 }
 
+.github-link {
+  color: #2c3e50;
+  margin-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.github-link:hover {
+  opacity: 1;
+}
+
 .image-link {
   color: #3498db;
   text-decoration: none;
@@ -650,6 +663,10 @@ hr.style-emb {
 
   .lang-toggle:hover {
     background-color: #3a3a3a;
+  }
+
+  .github-link {
+    color: #e0e0e0;
   }
 
   #pasteButton {
