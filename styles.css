@@ -42,6 +42,23 @@ h1 {
   flex-shrink: 0;
 }
 
+.lang-toggle {
+  background: none;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #2c3e50;
+  flex-shrink: 0;
+  margin-left: 1rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.lang-toggle:hover {
+  background-color: #ecf0f1;
+}
+
 .image-link {
   color: #3498db;
   text-decoration: none;
@@ -187,7 +204,6 @@ p {
 #imageContainer img {
   max-width: 100%;
   height: auto;
-  margin-top: 1.5rem;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -258,6 +274,10 @@ p {
   .sections-container {
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .image-mining-row {
+    flex-direction: column;
   }
 }
 
@@ -363,6 +383,108 @@ p {
   border-top: 2px solid #27ae60;
 }
 
+.image-mining-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 1.5rem;
+}
+
+#imageContainer {
+  flex-shrink: 0;
+}
+
+#miningContainer {
+  flex: 1;
+  min-width: 0;
+}
+
+.mining-section {
+  background-color: #ecf0f1;
+  padding: 1rem;
+  border-radius: 4px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.mining-title {
+  background-color: #c8d6e5 !important;
+}
+
+.mining-item {
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mining-mined,
+.mining-to-mine {
+  width: 80px;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  text-align: right;
+  margin-left: 0.25rem;
+}
+
+.mining-total {
+  color: #555;
+  font-size: 0.85rem;
+  min-width: 60px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mining-time {
+  font-weight: bold;
+  color: #2980b9;
+  min-width: 70px;
+  text-align: right;
+}
+
+.total-mining-time {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2980b9;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid #2980b9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mining-section {
+    background-color: #3a3a3a;
+  }
+
+  .mining-title {
+    background-color: #2c4a5a !important;
+  }
+
+  .mining-detail {
+    color: #a0a0a0;
+  }
+
+  .mining-mined,
+  .mining-to-mine {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+  }
+
+  .mining-total {
+    color: #a0a0a0;
+  }
+
+  .mining-time {
+    color: #5dade2;
+  }
+
+  .total-mining-time {
+    color: #5dade2;
+    border-top-color: #5dade2;
+  }
+}
+
 hr.style-emb {
   border: 0;
   height: 0;
@@ -401,6 +523,15 @@ hr.style-emb {
 
   p {
     color: #c0c0c0;
+  }
+
+  .lang-toggle {
+    border-color: #555;
+    color: #e0e0e0;
+  }
+
+  .lang-toggle:hover {
+    background-color: #3a3a3a;
   }
 
   #pasteButton {

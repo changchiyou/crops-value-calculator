@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>金司馬船運計算機</title>
+    <title data-i18n="title">金司馬船運計算機</title>
     <link
       rel="icon"
       href="https://cdn.poedb.tw/image/Art/2DArt/minimap/player/VillageShipping.webp"
@@ -22,46 +22,41 @@
       dataLayer.push(arguments);
     }
     gtag("js", new Date());
-
     gtag("config", "G-S01FYFQXS1");
   </script>
   <body>
     <div class="container">
       <div class="header">
-        <h1>金司馬船運計算機</h1>
-        <div class="disclaimer">
-          ⚠️ This tool is not intended for users of r/pathofexile on Reddit, as
-          they are likely to
-          <a
-            href="#"
-            class="image-link"
-            data-image="https://changchiyou.github.io/crops-value-calculator/images/Screenshot_2024-09-11-09-15-16-547_com.reddit.frontpage.png"
-            >consider it a useless project</a
-          >.
-        </div>
+        <h1 data-i18n="heading">金司馬船運計算機</h1>
+        <button id="langToggle" class="lang-toggle">EN</button>
       </div>
-      <p>從剪貼版貼上圖片以提取農作物與礦物數量並計算總價值。</p>
+      <p data-i18n="description">從剪貼版貼上圖片以提取農作物與礦物數量並計算總價值。</p>
       <div class="input-group">
         <button id="pasteButton">
-          <span class="button-text">貼上圖片</span>
+          <span class="button-text" data-i18n="pasteButton">貼上圖片</span>
           <span class="processing-text">
-            正在處理 <span class="dot-1">.</span><span class="dot-2">.</span
+            <span data-i18n="processing">正在處理</span> <span class="dot-1">.</span><span class="dot-2">.</span
             ><span class="dot-3">.</span>
           </span>
         </button>
         <input
           type="text"
           id="apiKeyInput"
+          data-i18n-placeholder="apiKeyPlaceholder"
           placeholder="(非必要) 你的 OCR.SPACE API 金鑰"
         />
         <a
           href="https://ocr.space/ocrapi/freekey"
           target="_blank"
           rel="noopener noreferrer"
+          data-i18n="freeKey"
           >註冊免費金鑰</a
         >
       </div>
-      <div id="imageContainer"></div>
+      <div class="image-mining-row">
+        <div id="imageContainer"></div>
+        <div id="miningContainer"></div>
+      </div>
       <div id="output" class="output-container"></div>
       <div id="result" class="result"></div>
       <br />
