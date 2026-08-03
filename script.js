@@ -96,7 +96,7 @@ function applyI18n() {
   const giscusFrame = document.querySelector("iframe.giscus-frame");
   if (giscusFrame) {
     giscusFrame.contentWindow.postMessage(
-      { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-CN" : "en" } } },
+      { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-TW" : "en" } } },
       "https://giscus.app"
     );
   }
