@@ -451,11 +451,108 @@ p {
   border-top: 2px solid #2980b9;
 }
 
-.projected-total {
-  font-size: 1.1rem;
+.result-cards {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.result-card {
+  flex: 1;
+  min-width: 180px;
+  background-color: #ecf0f1;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.result-card-projected {
+  border: 2px solid #27ae60;
+}
+
+.result-card-title {
+  font-size: 0.8rem;
   font-weight: bold;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.result-card-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.2rem;
+}
+
+.result-card-total {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2c3e50;
+  border-top: 1px solid #bdc3c7;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+
+.card-projected-total {
   color: #27ae60;
-  margin-top: 0.25rem;
+}
+
+.ore-gain {
+  font-size: 0.8rem;
+  color: #27ae60;
+  font-weight: bold;
+  margin-left: 0.3rem;
+}
+
+.result-card-eta {
+  font-size: 0.8rem;
+  color: #2980b9;
+  margin-top: 0.3rem;
+}
+
+.result-card-arrow {
+  font-size: 1.5rem;
+  color: #95a5a6;
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .result-card {
+    background-color: #3a3a3a;
+  }
+
+  .result-card-title {
+    color: #a0a0a0;
+  }
+
+  .result-card-row {
+    color: #c0c0c0;
+  }
+
+  .result-card-total {
+    color: #e0e0e0;
+    border-top-color: #555;
+  }
+
+  .card-projected-total {
+    color: #4ade80;
+  }
+
+  .ore-gain {
+    color: #4ade80;
+  }
+
+  .result-card-projected {
+    border-color: #4ade80;
+  }
+
+  .result-card-eta {
+    color: #5dade2;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

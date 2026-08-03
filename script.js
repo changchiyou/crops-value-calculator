@@ -1,4 +1,5 @@
 const defaultApiKey = "091bfd2c2e88957";
+const CROP_VALUE_PER_HOUR = 136080;
 const apiKeyInput = document.getElementById("apiKeyInput");
 
 const i18n = {
@@ -18,6 +19,11 @@ const i18n = {
     grandTotal: "總價值",
     miningTotal: "預估全部冶煉完成",
     projectedTotal: "冶煉完成後總價值",
+    currentCard: "當前",
+    projectedCard: "冶煉完畢",
+    cropGain: "農作物增值",
+    oreGain: "礦物增幅",
+    eta: "預估完成",
     minedPrefix: "已挖",
     toMinePrefix: "待挖",
     totalPrefix: "共",
@@ -47,6 +53,11 @@ const i18n = {
     grandTotal: "Grand Total",
     miningTotal: "Est. all smelting done",
     projectedTotal: "Projected total after smelting",
+    currentCard: "Current",
+    projectedCard: "After Smelting",
+    cropGain: "Crop gain",
+    oreGain: "Ore gain",
+    eta: "ETA",
     minedPrefix: "mined",
     toMinePrefix: "to mine",
     totalPrefix: "total",
@@ -564,15 +575,37 @@ function calculateAllValues(crops, ores, miningData = null) {
       });
     }
 
-    let resultHTML = `
-      <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
-      <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
-      <div class="total-value">${t("grandTotal")}: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
-    `;
+    const cropGain = Math.round(CROP_VALUE_PER_HOUR * totalMiningHours);
+    const currentTotal = cropTotalValue + oreTotalValue;
+    const projectedCropTotal = cropTotalValue + cropGain;
+    const projectedTotal = projectedCropTotal + projectedOreTotalValue;
+    const oreGain = projectedOreTotalValue - oreTotalValue;
+
+    let resultHTML;
     if (miningData) {
-      resultHTML += `
-        <div class="total-mining-time">${t("miningTotal")}: ${formatDuration(totalMiningHours)}</div>
-        <div class="projected-total">${t("projectedTotal")}: ${(cropTotalValue + projectedOreTotalValue).toLocaleString()}</div>
+      resultHTML = `
+        <div class="result-cards">
+          <div class="result-card">
+            <div class="result-card-title">${t("currentCard")}</div>
+            <div class="result-card-row"><span>${t("cropTotal")}</span><span class="card-current-crop">${cropTotalValue.toLocaleString()}</span></div>
+            <div class="result-card-row"><span>${t("oreTotal")}</span><span class="card-current-ore">${oreTotalValue.toLocaleString()}</span></div>
+            <div class="result-card-total card-current-total">${currentTotal.toLocaleString()}</div>
+          </div>
+          <div class="result-card-arrow">→</div>
+          <div class="result-card result-card-projected">
+            <div class="result-card-title">${t("projectedCard")}</div>
+            <div class="result-card-row"><span>${t("cropTotal")}</span><span class="card-projected-crop">${projectedCropTotal.toLocaleString()} <span class="ore-gain card-crop-gain">+${cropGain.toLocaleString()}</span></span></div>
+            <div class="result-card-row"><span>${t("oreTotal")}</span><span class="card-projected-ore">${projectedOreTotalValue.toLocaleString()} <span class="ore-gain card-ore-gain">+${oreGain.toLocaleString()}</span></span></div>
+            <div class="result-card-total card-projected-total">${projectedTotal.toLocaleString()}</div>
+            <div class="result-card-eta card-eta">${t("eta")}: ${formatDuration(totalMiningHours)}</div>
+          </div>
+        </div>
+      `;
+    } else {
+      resultHTML = `
+        <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
+        <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
+        <div class="total-value">${t("grandTotal")}: ${currentTotal.toLocaleString()}</div>
       `;
     }
     result.innerHTML = resultHTML;
@@ -609,18 +642,60 @@ function recalculate() {
   });
 
   const result = document.getElementById("result");
-  const totalMiningEl = result.querySelector(".total-mining-time");
-  const projectedEl = result.querySelector(".projected-total");
-  const totalMiningHTML = totalMiningEl ? totalMiningEl.outerHTML : "";
-  const projectedHTML = projectedEl ? projectedEl.outerHTML : "";
 
-  result.innerHTML = `
-    <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
-    <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
-    <div class="total-value">${t("grandTotal")}: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
-    ${totalMiningHTML}
-    ${projectedHTML}
-  `;
+  if (result.querySelector(".result-cards")) {
+    updateResultCards(cropTotalValue, oreTotalValue);
+  } else {
+    result.innerHTML = `
+      <div>${t("cropTotal")}: ${cropTotalValue.toLocaleString()}</div>
+      <div>${t("oreTotal")}: ${oreTotalValue.toLocaleString()}</div>
+      <div class="total-value">${t("grandTotal")}: ${(cropTotalValue + oreTotalValue).toLocaleString()}</div>
+    `;
+  }
+}
+
+function getResultTotals() {
+  let cropTotalValue = 0;
+  let oreTotalValue = 0;
+  document.querySelectorAll(".crop-item:not(.mining-item)").forEach((item) => {
+    const quantityEl = item.querySelector(".crop-quantity");
+    const ratioEl = item.querySelector(".crop-ratio");
+    if (!quantityEl || !ratioEl) return;
+    const value = (parseInt(quantityEl.value, 10) || 0) * (parseInt(ratioEl.value, 10) || 0);
+    if (quantityEl.getAttribute("data-type") === "crop") cropTotalValue += value;
+    else if (quantityEl.getAttribute("data-type") === "ore") oreTotalValue += value;
+  });
+  return { cropTotalValue, oreTotalValue };
+}
+
+function updateResultCards(cropTotalValue, oreTotalValue) {
+  const result = document.getElementById("result");
+
+  let projectedOreTotalValue = oreTotalValue;
+  let totalMiningHours = 0;
+  document.querySelectorAll(".mining-item").forEach((item) => {
+    const index = parseInt(item.querySelector(".mining-mined").getAttribute("data-index"), 10);
+    const mined = parseInt(item.querySelector(".mining-mined").value, 10) || 0;
+    const toMine = parseInt(item.querySelector(".mining-to-mine").value, 10) || 0;
+    projectedOreTotalValue += (mined + toMine) * oreValueRatios[index].ratio;
+    totalMiningHours += (mined + toMine) / (oreMiningRates[index] / 2);
+  });
+
+  const cropGain = Math.round(CROP_VALUE_PER_HOUR * totalMiningHours);
+  const oreGain = projectedOreTotalValue - oreTotalValue;
+  const currentTotal = cropTotalValue + oreTotalValue;
+  const projectedCropTotal = cropTotalValue + cropGain;
+  const projectedTotal = projectedCropTotal + projectedOreTotalValue;
+
+  result.querySelector(".card-current-crop").textContent = cropTotalValue.toLocaleString();
+  result.querySelector(".card-current-ore").textContent = oreTotalValue.toLocaleString();
+  result.querySelector(".card-current-total").textContent = currentTotal.toLocaleString();
+  result.querySelector(".card-projected-crop").textContent = projectedCropTotal.toLocaleString();
+  result.querySelector(".card-crop-gain").textContent = `+${cropGain.toLocaleString()}`;
+  result.querySelector(".card-projected-ore").textContent = projectedOreTotalValue.toLocaleString();
+  result.querySelector(".card-ore-gain").textContent = `+${oreGain.toLocaleString()}`;
+  result.querySelector(".card-projected-total").textContent = projectedTotal.toLocaleString();
+  result.querySelector(".card-eta").textContent = `${t("eta")}: ${formatDuration(totalMiningHours)}`;
 }
 
 function recalculateMining() {
@@ -639,41 +714,9 @@ function recalculateMining() {
   });
 
   const result = document.getElementById("result");
-  const totalMiningEl = result.querySelector(".total-mining-time");
-  if (totalMiningEl) {
-    totalMiningEl.textContent = `${t("miningTotal")}: ${formatDuration(totalMiningHours)}`;
-  }
-
-  const projectedEl = result.querySelector(".projected-total");
-  if (projectedEl) {
-    let cropTotalValue = 0;
-    document.querySelectorAll(".crop-item:not(.mining-item)").forEach((item) => {
-      const quantityEl = item.querySelector(".crop-quantity");
-      const ratioEl = item.querySelector(".crop-ratio");
-      if (!quantityEl || !ratioEl) return;
-      if (quantityEl.getAttribute("data-type") === "crop") {
-        cropTotalValue += (parseInt(quantityEl.value, 10) || 0) * (parseInt(ratioEl.value, 10) || 0);
-      }
-    });
-
-    let projectedOreTotalValue = 0;
-    document.querySelectorAll(".crop-item:not(.mining-item)").forEach((item) => {
-      const quantityEl = item.querySelector(".crop-quantity");
-      const ratioEl = item.querySelector(".crop-ratio");
-      if (!quantityEl || !ratioEl) return;
-      if (quantityEl.getAttribute("data-type") === "ore") {
-        projectedOreTotalValue += (parseInt(quantityEl.value, 10) || 0) * (parseInt(ratioEl.value, 10) || 0);
-      }
-    });
-
-    document.querySelectorAll(".mining-item").forEach((item) => {
-      const index = parseInt(item.querySelector(".mining-mined").getAttribute("data-index"), 10);
-      const mined = parseInt(item.querySelector(".mining-mined").value, 10) || 0;
-      const toMine = parseInt(item.querySelector(".mining-to-mine").value, 10) || 0;
-      projectedOreTotalValue += (mined + toMine) * oreValueRatios[index].ratio;
-    });
-
-    projectedEl.textContent = `${t("projectedTotal")}: ${(cropTotalValue + projectedOreTotalValue).toLocaleString()}`;
+  if (result.querySelector(".result-cards")) {
+    const { cropTotalValue, oreTotalValue } = getResultTotals();
+    updateResultCards(cropTotalValue, oreTotalValue);
   }
 }
 
