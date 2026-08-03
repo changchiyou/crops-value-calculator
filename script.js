@@ -92,6 +92,14 @@ function applyI18n() {
   });
 
   document.getElementById("langToggle").textContent = currentLang === "zh" ? "EN" : "中文";
+
+  const giscusFrame = document.querySelector("iframe.giscus-frame");
+  if (giscusFrame) {
+    giscusFrame.contentWindow.postMessage(
+      { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-CN" : "en" } } },
+      "https://giscus.app"
+    );
+  }
 }
 
 const cropValueRatios = [

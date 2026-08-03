@@ -1,7 +1,5 @@
 # [Kingsmarch Shipping Calculator](https://changchiyou.github.io/crops-value-calculator/) (for POE Kingsmarch)
 
-![image](https://github.com/user-attachments/assets/8dfb00c2-7cee-4bd3-a387-5a6c4727f396)
-
 This tool saves you time by eliminating the need to:
 
 1. Travel from your hideout to Kingsmarch and wait for loading.
