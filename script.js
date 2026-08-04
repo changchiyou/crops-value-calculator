@@ -130,6 +130,16 @@ document.addEventListener("DOMContentLoaded", () => {
   applyI18n();
   calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
 
+  fetch("https://api.github.com/repos/changchiyou/crops-value-calculator/commits/main")
+    .then((r) => r.json())
+    .then((data) => {
+      const date = data?.commit?.committer?.date;
+      if (date) {
+        document.getElementById("lastUpdated").textContent = date.slice(0, 10);
+      }
+    })
+    .catch(() => {});
+
   document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "zh" ? "en" : "zh";
     localStorage.setItem("lang", currentLang);
