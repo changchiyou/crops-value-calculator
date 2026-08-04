@@ -112,10 +112,10 @@ const cropValueRatios = [
 
 const oreValueRatios = [
   { ratio: 16 },
-  { ratio: 19 },
-  { ratio: 24 },
-  { ratio: 37 },
-  { ratio: 64 },
+  { ratio: 22 },
+  { ratio: 30 },
+  { ratio: 50 },
+  { ratio: 90 },
 ];
 
 // 冶煉速率 = 挖掘速率 / 2
