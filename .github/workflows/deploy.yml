@@ -24,7 +24,7 @@ jobs:
 
       - name: Inject last updated date
         run: |
-          DATE=$(date -u +"%Y-%m-%d")
+          DATE=$(date -u +"%Y-%m-%d %H:%M UTC")
           sed -i "s/__LAST_UPDATED__/$DATE/" index.html
 
       - uses: actions/configure-pages@v5
