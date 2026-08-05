@@ -17,9 +17,7 @@ For me, the in-game process takes about 10 seconds. With this tool, it takes onl
 ## Features
 
 - **OCR-powered**: Paste a screenshot and values are extracted automatically via [OCR.space](https://ocr.space). Bring your own API key or use the default free-tier key.
-- **Two screenshot formats supported**:
-  - Classic view (Smelted Bars + Crops)
-  - Mining overview (Mined Ore + Ore to Mine + Smelted Bars + Crops)
+- **Full mining overview supported**: Paste a screenshot containing Mined Ore, Ore to Mine, Smelted Bars, and Crops.
 - **Smelting time estimator**: When the mining overview is pasted, each ore's estimated smelting completion time is shown beside the screenshot, along with a grand total. All values are editable to correct any OCR errors.
 - **Editable values**: All quantities and ratios can be manually adjusted after OCR.
 - **zh / EN toggle**: Switch between Traditional Chinese and English UI.
