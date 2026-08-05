@@ -104,7 +104,7 @@ function applyI18n() {
     el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
   });
 
-  document.getElementById("langToggle").textContent = currentLang === "zh" ? "EN" : "中文";
+  document.getElementById("langToggle").innerHTML = `<i class="fa-solid fa-language"></i> ${currentLang === "zh" ? "EN" : "中文"}`;
 
   const giscusFrame = document.querySelector("iframe.giscus-frame");
   if (giscusFrame) {
