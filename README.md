@@ -4,7 +4,7 @@ This tool saves you time by eliminating the need to:
 
 1. Travel from your hideout to Kingsmarch and wait for loading.
 2. Spend several seconds walking to talk with Tujen.
-3. Drag the slider five times.
+3. Drag the slider ten times.
 4. Finally calculate the total value of your crops and ores.
 
 For me, the in-game process takes about 10 seconds. With this tool, it takes only 3 seconds max:
@@ -24,3 +24,7 @@ For me, the in-game process takes about 10 seconds. With this tool, it takes onl
 - **Editable values**: All quantities and ratios can be manually adjusted after OCR.
 - **zh / EN toggle**: Switch between Traditional Chinese and English UI.
 - **Dark mode**: Follows system preference.
+
+## Changelog
+
+See [patch notes](https://github.com/changchiyou/crops-value-calculator/discussions/1) for version history.
