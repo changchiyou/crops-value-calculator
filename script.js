@@ -118,7 +118,7 @@ const oreValueRatios = [
   { ratio: 90 },
 ];
 
-// 冶煉速率 = 挖掘速率 / 2
+// Smelting rate = mining rate / 2
 const oreMiningRates = [22680, 18768, 15120, 9720, 5670];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -129,6 +129,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyI18n();
   calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
+
+  // Sync giscus language once its iframe appears (it loads async after DOMContentLoaded)
+  const observer = new MutationObserver(() => {
+    const giscusFrame = document.querySelector("iframe.giscus-frame");
+    if (giscusFrame) {
+      observer.disconnect();
+      giscusFrame.contentWindow.postMessage(
+        { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-TW" : "en" } } },
+        "https://giscus.app"
+      );
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 
 
   document.getElementById("langToggle").addEventListener("click", () => {
@@ -225,9 +238,32 @@ async function extractTextFromImage(base64Image) {
   }
 }
 
-// 用座標解析 Mined Ore / Ore to Mine 區段，回傳各 5 種礦的 [mined, toMine]
+// Parse Mined Ore / Ore to Mine section by coordinates, returning [mined, toMine] for each of the 5 ore types
+// Merge left and right column entries by Top proximity (±10px) to reconstruct full row list.
+// Returns [leftValues, rightValues] each of length `expectedRows`, with 0 for missing cells.
+function alignColumns(leftCol, rightCol) {
+  const allTops = [...leftCol, ...rightCol]
+    .map((e) => e.top)
+    .sort((a, b) => a - b);
+
+  const rowTops = [];
+  for (const top of allTops) {
+    if (!rowTops.some((r) => Math.abs(r - top) <= 10)) rowTops.push(top);
+  }
+
+  const lookup = (col, top) => {
+    const match = col.find((e) => Math.abs(e.top - top) <= 10);
+    return match ? match.value : 0;
+  };
+
+  return rowTops.map((top) => ({
+    left: lookup(leftCol, top),
+    right: lookup(rightCol, top),
+  }));
+}
+
 function parseMinedOreSection(lines) {
-  // 找出 "Mined Ore" 和 "Smelted Bars" 的 Top 位置作為區段邊界
+  // Find Top positions of "Mined Ore" and "Smelted Bars" headers as section boundaries
   let sectionStart = null;
   let sectionEnd = null;
 
@@ -240,9 +276,12 @@ function parseMinedOreSection(lines) {
     }
   }
 
-  if (sectionStart === null) return null;
+  if (sectionStart === null) {
+    console.log("[parseMinedOreSection] 'Mined Ore' header not found in lines");
+    return null;
+  }
 
-  // 收集區段內的數字行，依 Left 座標分左右欄（threshold ~100px）
+  // Collect numeric lines in section, split into left/right columns by Left coordinate (threshold ~100px)
   const LEFT_THRESHOLD = 100;
   const leftCol = [];  // Mined Ore
   const rightCol = []; // Ore to Mine
@@ -252,34 +291,38 @@ function parseMinedOreSection(lines) {
     if (sectionEnd !== null && line.MinTop >= sectionEnd) continue;
 
     const text = line.LineText.trim();
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    if (isNaN(num) || text.match(/[a-zA-Z]/)) continue;
+    if (text.match(/[a-zA-Z]/)) continue;
 
-    const leftPos = line.Words[0]?.Left ?? 0;
-    if (leftPos < LEFT_THRESHOLD) {
-      leftCol.push({ top: line.MinTop, value: num });
-    } else {
-      rightCol.push({ top: line.MinTop, value: num });
+    // Process each word individually to handle lines that span both columns
+    for (const word of (line.Words || [])) {
+      const wordText = word.WordText?.trim() ?? "";
+      const num = parseInt(wordText.replace(/[^0-9]/g, ""), 10);
+      if (isNaN(num)) continue;
+      const leftPos = word.Left ?? 0;
+      if (leftPos < LEFT_THRESHOLD) {
+        leftCol.push({ top: line.MinTop, value: num });
+      } else {
+        rightCol.push({ top: line.MinTop, value: num });
+      }
     }
   }
 
-  // 右欄依 Top 排序即為 5 種礦的 ore_to_mine（緋紅、山銅、石化琥珀、鉍、維里西姆）
-  rightCol.sort((a, b) => a.top - b.top);
-  if (rightCol.length !== 5) return null;
-  const oreToMine = rightCol.map((r) => r.value);
+  console.log("[parseMinedOreSection] leftCol:", leftCol, "rightCol:", rightCol);
 
-  // 左欄依 Top 排序，用 Top 座標對應到右欄的同一行（±10px），補 0 給缺失的礦
-  leftCol.sort((a, b) => a.top - b.top);
-  const minedOre = rightCol.map((right) => {
-    const match = leftCol.find((l) => Math.abs(l.top - right.top) <= 10);
-    return match ? match.value : 0;
-  });
+  const rows = alignColumns(leftCol, rightCol);
+  if (rows.length === 0) {
+    console.log("[parseMinedOreSection] no rows found");
+    return null;
+  }
 
-  return { minedOre, oreToMine };
+  return {
+    minedOre: rows.map((r) => r.left),
+    oreToMine: rows.map((r) => r.right),
+  };
 }
 
 function parseAndCalculate(text, lines) {
-  // 偵測是否為新格式（含 Mined Ore 區段）
+  // Detect new format (contains Mined Ore section)
   const isNewFormat = text.includes("Mined Ore");
 
   if (isNewFormat) {
@@ -289,7 +332,7 @@ function parseAndCalculate(text, lines) {
       return;
     }
 
-    // Smelted Bars 以下沿用舊邏輯：從 "Smelted Bars" 後取數字
+    // Parse numeric values after "Smelted Bars" (legacy logic)
     const afterSmelted = text.split("Smelted Bars")[1] || "";
     const smeltedAndBelow = afterSmelted.split(/\s+/);
     const numericValues = [];
@@ -298,14 +341,11 @@ function parseAndCalculate(text, lines) {
       if (number) numericValues.push(parseInt(number, 10));
     });
 
-    // 舊格式從 Smelted Bars 開始：緋紅(0)、山銅(1)、石化琥珀(2)、粉塵(3)、小麥(4)、玉米(5)、南瓜(6)、鉍(7)、維里西姆(8)、瓜果(9)、藍贊提蒙(10)
-    // 但新圖只有 3 個 Smelted Bars（緋紅、山銅、石化琥珀），所以數量會不同
-    // Crops 部分依舊格式對應
     if (numericValues.length < 11) {
-      // 嘗試從完整 text 取 Crops 後的數值
+      // Not enough values from text fallback; rely on line-based parsers below
     }
 
-    // 從原始 text 取 Crops 區段數值
+    // Parse Crops section from raw text
     const afterCrops = text.split("Crops")[1] || "";
     const cropWords = afterCrops.split(/\s+/);
     const cropNums = [];
@@ -314,15 +354,14 @@ function parseAndCalculate(text, lines) {
       if (number) cropNums.push(parseInt(number, 10));
     });
 
-    // Crops 區段：左欄 684、608、785（小麥、玉米、南瓜），右欄 10597、75193（瓜果、藍贊提蒙）
-    // 但也有 34233、50065 夾在 Smelted Bars 右欄——從 lines 取 Crops 區段後的左右欄
+    // Parse crops and smelted bars from coordinate-based line data
     const crops = parseCropsFromLines(lines);
     if (!crops) {
       displayError(t("parseCropFail"));
       return;
     }
 
-    // Smelted Bars 數值（只取左欄前 3 個）
+    // Parse Smelted Bars values
     const smeltedNums = parseSmeltedBarsFromLines(lines);
     const ores = smeltedNums.length === 5 ? smeltedNums : [
       smeltedNums[0] || 0,
@@ -334,7 +373,7 @@ function parseAndCalculate(text, lines) {
 
     calculateAllValues(crops, ores, miningData);
   } else {
-    // 舊格式
+    // Legacy format
     const numericValues = [];
     const words = text.split(/\s+/);
     words.forEach((word) => {
@@ -383,29 +422,31 @@ function parseCropsFromLines(lines) {
   for (const line of lines) {
     if (line.MinTop <= cropsStart) continue;
     const text = line.LineText.trim();
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    if (isNaN(num) || text.match(/[a-zA-Z]/)) continue;
+    if (text.match(/[a-zA-Z]/)) continue;
 
-    const leftPos = line.Words[0]?.Left ?? 0;
-    if (leftPos < LEFT_THRESHOLD) {
-      leftCol.push({ top: line.MinTop, value: num });
-    } else {
-      rightCol.push({ top: line.MinTop, value: num });
+    for (const word of (line.Words || [])) {
+      const wordText = word.WordText?.trim() ?? "";
+      const num = parseInt(wordText.replace(/[^0-9]/g, ""), 10);
+      if (isNaN(num)) continue;
+      const leftPos = word.Left ?? 0;
+      if (leftPos < LEFT_THRESHOLD) {
+        leftCol.push({ top: line.MinTop, value: num });
+      } else {
+        rightCol.push({ top: line.MinTop, value: num });
+      }
     }
   }
 
   leftCol.sort((a, b) => a.top - b.top);
   rightCol.sort((a, b) => a.top - b.top);
 
-  // 左欄：小麥、玉米、南瓜（3 個）；右欄：瓜果、藍贊提蒙（2 個）
-  if (leftCol.length < 3 || rightCol.length < 2) return null;
-
+  // Left col: wheat, corn, pumpkin (3 rows); right col: gourd, bluzanthemum (2 rows) — independent columns
   return [
-    leftCol[0].value,  // 小麥
-    leftCol[1].value,  // 玉米
-    leftCol[2].value,  // 南瓜
-    rightCol[0].value, // 瓜果
-    rightCol[1].value, // 藍贊提蒙
+    leftCol[0]?.value ?? 0,  // wheat
+    leftCol[1]?.value ?? 0,  // corn
+    leftCol[2]?.value ?? 0,  // pumpkin
+    rightCol[0]?.value ?? 0, // gourd
+    rightCol[1]?.value ?? 0, // bluzanthemum
   ];
 }
 
@@ -433,27 +474,31 @@ function parseSmeltedBarsFromLines(lines) {
     if (smeltedEnd !== null && line.MinTop >= smeltedEnd) continue;
 
     const text = line.LineText.trim();
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    if (isNaN(num) || text.match(/[a-zA-Z]/)) continue;
+    if (text.match(/[a-zA-Z]/)) continue;
 
-    const leftPos = line.Words[0]?.Left ?? 0;
-    if (leftPos < LEFT_THRESHOLD) {
-      leftCol.push({ top: line.MinTop, value: num });
-    } else {
-      rightCol.push({ top: line.MinTop, value: num });
+    for (const word of (line.Words || [])) {
+      const wordText = word.WordText?.trim() ?? "";
+      const num = parseInt(wordText.replace(/[^0-9]/g, ""), 10);
+      if (isNaN(num)) continue;
+      const leftPos = word.Left ?? 0;
+      if (leftPos < LEFT_THRESHOLD) {
+        leftCol.push({ top: line.MinTop, value: num });
+      } else {
+        rightCol.push({ top: line.MinTop, value: num });
+      }
     }
   }
 
   leftCol.sort((a, b) => a.top - b.top);
   rightCol.sort((a, b) => a.top - b.top);
 
-  // 左欄：緋紅、山銅、石化琥珀；右欄：鉍、維里西姆
+  // Left col: crimson iron, orichalcum, petrified amber (3 rows); right col: bismuth, verilium (2 rows) — independent columns
   return [
-    leftCol[0]?.value || 0,  // 緋紅
-    leftCol[1]?.value || 0,  // 山銅
-    leftCol[2]?.value || 0,  // 石化琥珀
-    rightCol[0]?.value || 0, // 鉍
-    rightCol[1]?.value || 0, // 維里西姆
+    leftCol[0]?.value ?? 0,  // crimson iron
+    leftCol[1]?.value ?? 0,  // orichalcum
+    leftCol[2]?.value ?? 0,  // petrified amber
+    rightCol[0]?.value ?? 0, // bismuth
+    rightCol[1]?.value ?? 0, // verilium
   ];
 }
 
