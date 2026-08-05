@@ -130,15 +130,17 @@ document.addEventListener("DOMContentLoaded", () => {
   applyI18n();
   calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
 
-  // Sync giscus language once its iframe appears (it loads async after DOMContentLoaded)
+  // Sync giscus language after its iframe fully loads (it loads async after DOMContentLoaded)
   const observer = new MutationObserver(() => {
     const giscusFrame = document.querySelector("iframe.giscus-frame");
     if (giscusFrame) {
       observer.disconnect();
-      giscusFrame.contentWindow.postMessage(
-        { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-TW" : "en" } } },
-        "https://giscus.app"
-      );
+      giscusFrame.addEventListener("load", () => {
+        giscusFrame.contentWindow.postMessage(
+          { giscus: { setConfig: { lang: currentLang === "zh" ? "zh-TW" : "en" } } },
+          "https://giscus.app"
+        );
+      }, { once: true });
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
