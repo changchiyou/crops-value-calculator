@@ -73,7 +73,20 @@ const i18n = {
   },
 };
 
-let currentLang = localStorage.getItem("lang") || "zh";
+function getLangFromUrl() {
+  const param = new URLSearchParams(window.location.search).get("lang");
+  if (param === "en-us") return "en";
+  if (param === "zh-tw") return "zh";
+  return null;
+}
+
+function syncLangToUrl(lang) {
+  const params = new URLSearchParams(window.location.search);
+  params.set("lang", lang === "zh" ? "zh-tw" : "en-us");
+  history.replaceState(null, "", `${window.location.pathname}?${params}`);
+}
+
+let currentLang = getLangFromUrl() || localStorage.getItem("lang") || "en";
 
 function t(key, ...args) {
   const val = i18n[currentLang][key];
@@ -127,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     apiKeyInput.value = savedApiKey;
   }
 
+  syncLangToUrl(currentLang);
   applyI18n();
   calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
 
@@ -149,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("langToggle").addEventListener("click", () => {
     currentLang = currentLang === "zh" ? "en" : "zh";
     localStorage.setItem("lang", currentLang);
+    syncLangToUrl(currentLang);
     applyI18n();
     calculateAllValues(new Array(5).fill(10000), new Array(5).fill(10000));
   });
